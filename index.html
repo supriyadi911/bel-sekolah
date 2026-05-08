@@ -45,7 +45,7 @@
             background-color: var(--bg-body);
             color: var(--text-main);
             display: flex;
-            flex-direction: row; /* Default layout for Desktop/Tablet */
+            flex-direction: row; 
             height: 100vh;
             overflow: hidden;
             transition: var(--transition);
@@ -289,7 +289,7 @@
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); backdrop-filter: blur(3px);
-            display: none; align-items: center; justify-content: center; z-index: 100;
+            display: none; align-items: center; justify-content: center; z-index: 1000; /* Ditingkatkan agar tampil di atas menu bawah */
             padding: 20px;
         }
         .modal-overlay.active { display: flex; }
@@ -322,7 +322,7 @@
         .action-icon.delete:hover { color: var(--danger); }
         
         .flex-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .flex-responsive { display: flex; gap: 10px; align-items: center; } /* For upload area */
+        .flex-responsive { display: flex; gap: 10px; align-items: center; } 
         
         .mt-4 { margin-top: 1rem; }
         .mb-4 { margin-bottom: 1rem; }
@@ -382,6 +382,8 @@
                 position: fixed;
                 bottom: 0;
                 left: 0;
+                /* Pastikan sidebar berada di atas konten tapi di bawah modal */
+                z-index: 100;
             }
             .brand {
                 display: none;
@@ -416,11 +418,12 @@
             }
             .main-content {
                 order: 1;
-                height: calc(100vh - 70px); 
+                height: 100vh; /* Dikembalikan ke 100vh agar flex bekerja normal */
             }
             .view-section {
                 padding: 15px;
-                padding-bottom: 30px; 
+                /* Sangat penting: padding bawah ditambahkan agar area gulir melewati tinggi menu navigasi (70px + 30px jeda) */
+                padding-bottom: 100px; 
             }
             .clock-time {
                 font-size: 3.5rem; 
@@ -444,13 +447,13 @@
                 font-size: 1.5rem;
             }
             
-            /* Responsive Khusus Library Suara */
+            /* Responsive Khusus Library Suara & Settings */
             .flex-responsive {
-                flex-direction: column; /* Input & Button stack vertically on mobile */
+                flex-direction: column; 
                 align-items: stretch;
             }
             #custom-audio-table th, #custom-audio-table td {
-                padding: 10px; /* Reduce padding on mobile table */
+                padding: 10px; 
             }
         }
     </style>
@@ -1043,7 +1046,6 @@
                     return;
                 }
                 req.result.forEach(audio => {
-                    // Penyesuaian tata letak tombol pada tabel agar responsif di HP
                     tbody.innerHTML += `
                         <tr>
                             <td>${audio.name}</td>
