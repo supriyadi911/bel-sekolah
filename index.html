@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Aplikasi Bell Sekolah Otomatis</title>
     <style>
         /* ================= VARIABLES & THEME ================= */
@@ -45,6 +45,7 @@
             background-color: var(--bg-body);
             color: var(--text-main);
             display: flex;
+            flex-direction: row; /* Default layout for Desktop/Tablet */
             height: 100vh;
             overflow: hidden;
             transition: var(--transition);
@@ -52,13 +53,13 @@
 
         /* ================= LAYOUT ================= */
         .sidebar {
-            width: 260px;
+            width: 240px;
             background-color: var(--bg-card);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             transition: var(--transition);
-            z-index: 10;
+            z-index: 100;
         }
 
         .brand {
@@ -78,16 +79,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
-        .brand-text h2 { font-size: 1.1rem; color: var(--primary); }
-        .brand-text p { font-size: 0.8rem; color: var(--text-muted); }
+        .brand-text h2 { font-size: 1.1rem; color: var(--primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .brand-text p { font-size: 0.75rem; color: var(--text-muted); }
 
         .nav-links {
             flex: 1;
             padding: 15px 0;
             overflow-y: auto;
+            -ms-overflow-style: none; scrollbar-width: none;
         }
+        .nav-links::-webkit-scrollbar { display: none; }
 
         .nav-item {
             padding: 12px 20px;
@@ -109,19 +113,22 @@
             font-weight: 600;
         }
 
-        .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
+        .nav-item svg { width: 22px; height: 22px; fill: currentColor; flex-shrink: 0; }
+        .nav-item span { font-size: 0.95rem; }
 
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            height: 100vh;
         }
 
         /* ================= HEADER & MARQUEE ================= */
         .top-header {
             background-color: var(--bg-card);
             height: 60px;
+            min-height: 60px;
             display: flex;
             align-items: center;
             padding: 0 20px;
@@ -135,7 +142,7 @@
             white-space: nowrap;
             color: var(--primary);
             font-weight: 500;
-            margin: 0 20px;
+            margin-right: 15px;
         }
 
         .header-actions button {
@@ -146,6 +153,9 @@
             padding: 8px;
             border-radius: 50%;
             transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .header-actions button:hover { background: var(--bg-body); color: var(--text-main); }
 
@@ -171,14 +181,8 @@
         }
 
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
         
-        @media (max-width: 768px) {
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
-            .sidebar { position: absolute; transform: translateX(-100%); height: 100%; }
-            .sidebar.mobile-open { transform: translateX(0); }
-        }
-
         /* ================= DASHBOARD ELEMENTS ================= */
         .clock-display {
             text-align: center;
@@ -191,10 +195,11 @@
             overflow: hidden;
         }
 
-        .clock-time { font-size: 5rem; font-weight: bold; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .clock-time { font-size: 5rem; font-weight: bold; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); line-height: 1.1; }
         .clock-date { font-size: 1.2rem; margin-top: 10px; opacity: 0.9; }
         .clock-status {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
             margin-top: 20px;
             padding: 6px 16px;
             background: rgba(255,255,255,0.2);
@@ -235,6 +240,7 @@
             transition: var(--transition);
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
         }
         .btn-primary { background-color: var(--primary); color: white; }
@@ -246,17 +252,23 @@
         .btn-outline:hover { background-color: var(--bg-body); }
         .btn-block { width: 100%; justify-content: center; margin-bottom: 10px; }
         .btn-lg { padding: 15px 30px; font-size: 1.1rem; }
+        .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
 
         .control-panel { display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap;}
 
         /* ================= TABLES ================= */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); }
-        th { background-color: var(--bg-body); font-weight: 600; color: var(--text-muted); }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 300px; margin-top: 15px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        th { background-color: var(--bg-body); font-weight: 600; color: var(--text-muted); white-space: nowrap; }
         tr:hover { background-color: var(--bg-body); }
         
         .badge {
-            padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;
+            padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; white-space: nowrap;
         }
         .badge-masuk { background: #dbeafe; color: #1e3a8a; }
         .badge-istirahat { background: #fef9c3; color: #854d0e; }
@@ -264,8 +276,8 @@
         .badge-khusus { background: #f3e8ff; color: #6b21a8; }
 
         /* ================= FORMS & MODALS ================= */
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; color: var(--text-main); }
+        .form-group { margin-bottom: 15px; width: 100%; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; color: var(--text-main); font-size: 0.95rem; }
         .form-control {
             width: 100%; padding: 10px 12px;
             border: 1px solid var(--border); border-radius: 6px;
@@ -278,32 +290,40 @@
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); backdrop-filter: blur(3px);
             display: none; align-items: center; justify-content: center; z-index: 100;
+            padding: 20px;
         }
         .modal-overlay.active { display: flex; }
-        .modal { background: var(--bg-card); width: 100%; max-width: 500px; border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-lg); }
+        .modal { 
+            background: var(--bg-card); width: 100%; max-width: 500px; 
+            border-radius: var(--radius); padding: 24px; 
+            box-shadow: var(--shadow-lg); 
+            max-height: 90vh; overflow-y: auto; 
+        }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
 
-        .day-filter { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; }
-        .day-tab { padding: 8px 16px; border-radius: 20px; background: var(--bg-body); cursor: pointer; border: 1px solid var(--border); white-space: nowrap; }
+        .day-filter { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
+        .day-tab { padding: 8px 16px; border-radius: 20px; background: var(--bg-body); cursor: pointer; border: 1px solid var(--border); white-space: nowrap; font-size: 0.9rem;}
         .day-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         /* Fullscreen ringing alert */
         #ringing-alert {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 9999;
+            background: rgba(0,0,0,0.95); z-index: 9999;
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            color: white; text-align: center;
+            color: white; text-align: center; padding: 20px;
         }
-        #ringing-alert h1 { font-size: 4rem; color: #ef4444; animation: flash 1s infinite; }
-        #ringing-alert p { font-size: 1.5rem; margin-top: 20px; }
+        #ringing-alert h1 { font-size: 5rem; color: #ef4444; animation: flash 1s infinite; margin-bottom: 10px;}
+        #ringing-alert p { font-size: 2rem; margin-top: 10px; }
         @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        .action-icon { cursor: pointer; padding: 5px; color: var(--text-muted); }
+        .action-icon { cursor: pointer; padding: 5px; color: var(--text-muted); font-size: 1.1rem;}
         .action-icon:hover { color: var(--primary); }
         .action-icon.delete:hover { color: var(--danger); }
         
-        .flex-row { display: flex; gap: 10px; align-items: center; }
+        .flex-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .flex-responsive { display: flex; gap: 10px; align-items: center; } /* For upload area */
+        
         .mt-4 { margin-top: 1rem; }
         .mb-4 { margin-bottom: 1rem; }
 
@@ -312,11 +332,13 @@
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.8); z-index: 10000;
             display: none; align-items: center; justify-content: center;
+            padding: 20px;
         }
         .donation-card {
             background: var(--bg-card); padding: 30px; border-radius: var(--radius);
-            text-align: center; max-width: 450px; width: 90%;
+            text-align: center; max-width: 450px; width: 100%;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            max-height: 90vh; overflow-y: auto;
         }
         .donation-card h2 { color: var(--primary); margin-bottom: 15px; }
         .donation-card .bank-account {
@@ -340,16 +362,104 @@
         }
         .copy-btn:hover { background: var(--border); }
         .wa-btn {
-            background: #25D366; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; margin-top: 10px; transition: var(--transition); font-size: 0.95rem;
+            background: #25D366; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; margin-top: 10px; transition: var(--transition); font-size: 0.95rem; width: 100%;
         }
         .wa-btn:hover { background: #128C7E; }
+
+
+        /* ================= RESPONSIVE MOBILE STYLES ================= */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: 70px;
+                flex-direction: row;
+                order: 3;
+                border-right: none;
+                border-top: 1px solid var(--border);
+                position: fixed;
+                bottom: 0;
+                left: 0;
+            }
+            .brand {
+                display: none;
+            }
+            .nav-links {
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                padding: 0;
+                justify-content: space-between;
+                overflow-x: auto;
+            }
+            .nav-item {
+                flex-direction: column;
+                padding: 8px 4px;
+                gap: 4px;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                flex: 1;
+                justify-content: center;
+                align-items: center;
+                min-width: 65px;
+            }
+            .nav-item.active {
+                border-left-color: transparent;
+                border-bottom-color: var(--primary);
+                background-color: transparent;
+            }
+            .nav-item span {
+                font-size: 0.7rem;
+                white-space: nowrap;
+            }
+            .main-content {
+                order: 1;
+                height: calc(100vh - 70px); 
+            }
+            .view-section {
+                padding: 15px;
+                padding-bottom: 30px; 
+            }
+            .clock-time {
+                font-size: 3.5rem; 
+            }
+            .clock-date {
+                font-size: 1rem;
+            }
+            .control-panel .btn {
+                width: 100%; 
+            }
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr; 
+            }
+            .card {
+                padding: 18px;
+            }
+            #ringing-alert h1 {
+                font-size: 3rem; 
+            }
+            #ringing-alert p {
+                font-size: 1.5rem;
+            }
+            
+            /* Responsive Khusus Library Suara */
+            .flex-responsive {
+                flex-direction: column; /* Input & Button stack vertically on mobile */
+                align-items: stretch;
+            }
+            #custom-audio-table th, #custom-audio-table td {
+                padding: 10px; /* Reduce padding on mobile table */
+            }
+        }
     </style>
     <!-- Library untuk membaca dan menulis file Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
-    <!-- Sidebar Navigation -->
+    <!-- Sidebar / Bottom Nav (Responsive) -->
     <aside class="sidebar" id="sidebar">
         <div class="brand">
             <div class="brand-icon">
@@ -363,27 +473,27 @@
         <div class="nav-links">
             <a class="nav-item active" onclick="switchView('dashboard')">
                 <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-                Dashboard Utama
+                <span>Dashboard</span>
             </a>
             <a class="nav-item" onclick="switchView('jadwal')">
                 <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
-                Pengaturan Jadwal
+                <span>Jadwal</span>
             </a>
             <a class="nav-item" onclick="switchView('suara')">
                 <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                Library Suara
+                <span>Suara</span>
             </a>
             <a class="nav-item" onclick="switchView('manual')">
                 <svg viewBox="0 0 24 24"><path d="M15 4H5v16h14V8h-4V4zM3 2.99C3 2.44 3.45 2 4 2h10l6 6v12c0 .55-.45 1-.99 1H4c-.55 0-1-.45-1-1V2.99zM8 12h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>
-                Manual Panel
+                <span>Manual</span>
             </a>
             <a class="nav-item" onclick="switchView('settings')">
                 <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41L9.25 5.35C8.66 5.59 8.12 5.92 7.63 6.29L5.24 5.33c-.22-.08-.47 0-.59.22L2.73 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .43-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-                Pengaturan Sekolah
+                <span>Setelan</span>
             </a>
             <a class="nav-item" onclick="switchView('panduan')">
                 <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                Panduan Pengguna
+                <span>Panduan</span>
             </a>
         </div>
     </aside>
@@ -391,7 +501,6 @@
     <main class="main-content">
         <!-- Header Top -->
         <header class="top-header">
-            <button id="mobile-menu-btn" style="display:none;" class="btn btn-outline" onclick="document.getElementById('sidebar').classList.toggle('mobile-open')">☰</button>
             <div class="marquee-container">
                 <marquee id="ui-marquee-text" scrollamount="5">Selamat Datang di Sistem Bell Otomatis SDN Nusantara 1. Tahun Ajaran 2026/2027.</marquee>
             </div>
@@ -427,13 +536,12 @@
 
             <div class="card mt-4 pulse-anim" style="text-align: center; border: 2px dashed var(--secondary); padding: 20px;">
                 <p style="margin: 0; font-size: 1.05rem;">
-                    💚 <strong>Dukung Pengembang Aplikasi:</strong> Donasi sukarela melalui transfer ke rekening <strong>BRI: <span id="rek-dash">009801023322533</span></strong> (a.n. Supriyadi)
-                    <button class="copy-btn" onclick="copyRekening('rek-dash')">📋 Copy Rekening</button>
+                    💚 <strong>Dukung Pengembang:</strong> Donasi sukarela melalui transfer<br><strong>BRI: <span id="rek-dash">009801023322533</span></strong> (a.n. Supriyadi)
+                    <button class="copy-btn" onclick="copyRekening('rek-dash')">📋 Copy</button>
                 </p>
                 <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border);">
-                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">Hubungi pengembang untuk bantuan, laporan error, atau fitur kustom:</p>
                     <a href="https://wa.me/6282371962881?text=Halo%20Mas%20Supriyadi,%20saya%20pengguna%20Aplikasi%20Bell%20Sekolah%20Otomatis..." target="_blank" class="wa-btn">
-                        💬 Hubungi via WhatsApp (082371962881)
+                        💬 Hubungi Pengembang (WA)
                     </a>
                 </div>
             </div>
@@ -455,18 +563,20 @@
 
             <div class="card">
                 <h3>Jadwal Berjalan Hari Ini</h3>
-                <table id="today-schedule-table">
-                    <thead>
-                        <tr>
-                            <th>Waktu</th>
-                            <th>Kegiatan</th>
-                            <th>Jenis Bell</th>
-                        </tr>
-                    </thead>
-                    <tbody id="today-schedule-body">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table id="today-schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Waktu</th>
+                                <th>Kegiatan</th>
+                                <th>Jenis Bell</th>
+                            </tr>
+                        </thead>
+                        <tbody id="today-schedule-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -475,11 +585,11 @@
             <div class="card">
                 <div class="flex-row" style="justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap;">
                     <h2>Manajemen Jadwal Bell</h2>
-                    <div class="flex-row" style="gap: 10px; flex-wrap: wrap;">
-                        <button class="btn btn-outline" onclick="downloadExcelTemplate()">📥 Template Excel</button>
-                        <button class="btn btn-success" onclick="document.getElementById('import-excel-file').click()">📂 Import Excel</button>
+                    <div class="flex-row" style="gap: 10px; flex-wrap: wrap; width: 100%;">
+                        <button class="btn btn-outline" style="flex:1;" onclick="downloadExcelTemplate()">📥 Template Excel</button>
+                        <button class="btn btn-success" style="flex:1;" onclick="document.getElementById('import-excel-file').click()">📂 Import Excel</button>
                         <input type="file" id="import-excel-file" accept=".xlsx, .xls" style="display: none;" onchange="importExcel(event)">
-                        <button class="btn btn-primary" onclick="openScheduleModal()">+ Tambah Jadwal</button>
+                        <button class="btn btn-primary" style="flex:1; min-width: 100%;" onclick="openScheduleModal()">+ Tambah Jadwal</button>
                     </div>
                 </div>
                 
@@ -493,20 +603,22 @@
                     <div class="day-tab" onclick="filterDay(0, this)">Minggu / Khusus</div>
                 </div>
 
-                <table id="schedule-table">
-                    <thead>
-                        <tr>
-                            <th>Jam</th>
-                            <th>Kegiatan</th>
-                            <th>Jenis Bell</th>
-                            <th>Suara</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="schedule-body">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table id="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Jam</th>
+                                <th>Kegiatan</th>
+                                <th>Jenis Bell</th>
+                                <th>Suara</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -516,52 +628,56 @@
                 <div class="card">
                     <h2>Library Suara Bawaan</h2>
                     <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">
-                        Suara ini di-generate secara otomatis tanpa perlu file, sangat ringan dan cepat.
+                        Suara ini di-generate otomatis tanpa file, sangat ringan.
                     </p>
-                    <table class="mt-4">
-                        <tbody>
-                            <tr>
-                                <td>Bell Masuk (3 Nada)</td>
-                                <td><button class="btn btn-outline" onclick="playDefaultSynth('masuk')">▶ Test</button></td>
-                            </tr>
-                            <tr>
-                                <td>Bell Istirahat (2 Nada)</td>
-                                <td><button class="btn btn-outline" onclick="playDefaultSynth('istirahat')">▶ Test</button></td>
-                            </tr>
-                            <tr>
-                                <td>Bell Pulang (Westminster)</td>
-                                <td><button class="btn btn-outline" onclick="playDefaultSynth('pulang')">▶ Test</button></td>
-                            </tr>
-                            <tr>
-                                <td>Peringatan / Khusus (1 Nada)</td>
-                                <td><button class="btn btn-outline" onclick="playDefaultSynth('khusus')">▶ Test</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="mt-4">
+                            <tbody>
+                                <tr>
+                                    <td>Bell Masuk (3 Nada)</td>
+                                    <td style="text-align: right;"><button class="btn btn-outline btn-sm" onclick="playDefaultSynth('masuk')">▶ Test</button></td>
+                                </tr>
+                                <tr>
+                                    <td>Bell Istirahat (2 Nada)</td>
+                                    <td style="text-align: right;"><button class="btn btn-outline btn-sm" onclick="playDefaultSynth('istirahat')">▶ Test</button></td>
+                                </tr>
+                                <tr>
+                                    <td>Bell Pulang (Westminster)</td>
+                                    <td style="text-align: right;"><button class="btn btn-outline btn-sm" onclick="playDefaultSynth('pulang')">▶ Test</button></td>
+                                </tr>
+                                <tr>
+                                    <td>Peringatan / Khusus</td>
+                                    <td style="text-align: right;"><button class="btn btn-outline btn-sm" onclick="playDefaultSynth('khusus')">▶ Test</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="card">
                     <h2>Upload Suara Kustom</h2>
                     <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">
-                        Unggah file MP3/WAV Anda. Disimpan di dalam browser (IndexedDB) secara offline.
+                        Unggah file MP3/WAV Anda. Disimpan secara Offline.
                     </p>
-                    <div class="form-group flex-row">
-                        <input type="file" id="audio-upload" accept="audio/mp3, audio/wav" class="form-control" style="flex:1;">
-                        <button class="btn btn-success" onclick="uploadCustomAudio()">Simpan Suara</button>
+                    <div class="form-group flex-responsive">
+                        <input type="file" id="audio-upload" accept="audio/mp3, audio/wav" class="form-control" style="flex:1; width: 100%;">
+                        <button class="btn btn-success" style="white-space: nowrap;" onclick="uploadCustomAudio()">Simpan Suara</button>
                     </div>
                     
                     <h3 class="mt-4 mb-4">Daftar Suara Kustom Anda:</h3>
-                    <table id="custom-audio-table">
-                        <thead>
-                            <tr>
-                                <th>Nama File</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="custom-audio-body">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table id="custom-audio-table">
+                            <thead>
+                                <tr>
+                                    <th>Nama File</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="custom-audio-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -572,17 +688,17 @@
                 <h2 style="text-align: center; margin-bottom: 30px;">Panel Kontrol Manual</h2>
                 <div class="grid-3">
                     <button class="btn btn-block btn-lg" style="background:#dbeafe; color:#1e3a8a; height: 100px; font-size: 1.2rem; flex-direction:column;" onclick="manualPlay('masuk')">
-                        🔔 Bunyikan Bell Masuk
+                        🔔 Bell Masuk
                     </button>
                     <button class="btn btn-block btn-lg" style="background:#fef9c3; color:#854d0e; height: 100px; font-size: 1.2rem; flex-direction:column;" onclick="manualPlay('istirahat')">
-                        ☕ Bunyikan Bell Istirahat
+                        ☕ Bell Istirahat
                     </button>
                     <button class="btn btn-block btn-lg" style="background:#fee2e2; color:#991b1b; height: 100px; font-size: 1.2rem; flex-direction:column;" onclick="manualPlay('pulang')">
-                        🏠 Bunyikan Bell Pulang
+                        🏠 Bell Pulang
                     </button>
                 </div>
                 <div class="mt-4" style="text-align: center;">
-                    <button class="btn btn-danger btn-lg" style="width: 50%; padding: 20px;" onclick="stopCurrentBell()">
+                    <button class="btn btn-danger btn-lg" style="width: 100%; max-width: 400px; padding: 20px;" onclick="stopCurrentBell()">
                         🛑 STOP SEMUA SUARA
                     </button>
                 </div>
@@ -606,7 +722,7 @@
                         <label>Teks Berjalan (Marquee)</label>
                         <input type="text" id="set-school-marquee" class="form-control" placeholder="Pengumuman untuk ditampilkan di atas">
                     </div>
-                    <button class="btn btn-primary" onclick="saveSettings()">Simpan Pengaturan</button>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="saveSettings()">Simpan Pengaturan</button>
                 </div>
 
                 <div class="card">
@@ -615,14 +731,14 @@
                         Export jadwal ke file JSON untuk dipindahkan ke komputer lain, atau import dari file.
                     </p>
                     <div class="mt-4 flex-row" style="gap:15px">
-                        <button class="btn btn-success" onclick="exportData()">💾 Export Data Jadwal</button>
+                        <button class="btn btn-success" style="width: 100%;" onclick="exportData()">💾 Export Data Jadwal</button>
                     </div>
                     <hr style="margin: 20px 0; border:none; border-top: 1px solid var(--border);">
                     <div class="form-group">
                         <label>Import Data Jadwal (JSON)</label>
-                        <div class="flex-row">
-                            <input type="file" id="import-file" accept=".json" class="form-control">
-                            <button class="btn btn-outline" onclick="importData()">Import</button>
+                        <div class="flex-responsive">
+                            <input type="file" id="import-file" accept=".json" class="form-control" style="flex:1;">
+                            <button class="btn btn-outline" style="white-space: nowrap;" onclick="importData()">Import</button>
                         </div>
                     </div>
                 </div>
@@ -633,60 +749,36 @@
         <section id="view-panduan" class="view-section">
             <div class="card" style="line-height: 1.6;">
                 <h2>Panduan Aplikasi Bell Sekolah Otomatis</h2>
-                <p class="mt-4">Aplikasi ini dirancang khusus untuk mempermudah tugas staf Tata Usaha (TU) Sekolah Dasar. Aplikasi berjalan 100% di dalam browser (Chrome, Firefox, Edge) tanpa perlu koneksi internet dan tanpa perlu instalasi database rumit.</p>
+                <p class="mt-4">Aplikasi ini dirancang khusus untuk mempermudah tugas staf Tata Usaha (TU) Sekolah Dasar. Aplikasi berjalan 100% di dalam browser tanpa perlu koneksi internet.</p>
 
                 <h3 class="mt-4">🚀 Cara Instalasi / Penggunaan Pertama</h3>
                 <ol style="margin-left: 20px; margin-top: 10px;">
                     <li>Unduh (Download) file HTML utama dari tampilan di atas.</li>
-                    <li>Simpan file tersebut di komputer atau laptop sekolah Anda (misalnya di Desktop) dengan nama <strong>BellSekolah.html</strong>.</li>
-                    <li>Cukup <strong>Klik Ganda (Double-click)</strong> file tersebut. Aplikasi akan otomatis terbuka di browser default Anda.</li>
-                    <li>Jadikan file ini <strong>Bookmark</strong> agar lebih mudah diakses keesokan harinya.</li>
+                    <li>Simpan file di komputer sekolah Anda (misal di Desktop) dengan nama <strong>BellSekolah.html</strong>.</li>
+                    <li><strong>Klik Ganda (Double-click)</strong> file tersebut untuk membukanya di browser.</li>
+                    <li>Jadikan file ini <strong>Bookmark</strong> agar lebih mudah diakses.</li>
                 </ol>
 
                 <h3 class="mt-4">✨ Fitur-Fitur Utama</h3>
                 <ul style="margin-left: 20px; margin-top: 10px;">
-                    <li><strong>Tanpa Internet:</strong> Semua data jadwal dan file suara disimpan dengan aman di memori browser (LocalStorage & IndexedDB) komputer Anda.</li>
-                    <li><strong>Sintesis Suara Pintar:</strong> Walaupun Anda tidak memiliki/mengupload file MP3, aplikasi ini bisa menghasilkan nada bell sendiri yang jernih (Bell Masuk 3 Nada, Istirahat 2 Nada, Pulang Westminster).</li>
-                    <li><strong>Keamanan Refresh:</strong> Jika tanpa sengaja tertutup, data Anda tetap aman karena telah tersimpan di browser.</li>
+                    <li><strong>Tanpa Internet:</strong> Semua data disimpan dengan aman di memori browser (LocalStorage).</li>
+                    <li><strong>Sintesis Suara:</strong> Aplikasi ini bisa menghasilkan nada bell sendiri yang jernih otomatis.</li>
+                    <li><strong>Responsif Layar HP:</strong> Dapat dibuka di tablet atau HP sebagai panel kontrol tambahan (jika file dicopy ke HP).</li>
                 </ul>
 
                 <h3 class="mt-4">📝 Panduan Operasional</h3>
                 
-                <h4 class="mt-4">1. Memulai Sistem Bell (Setiap Pagi)</h4>
+                <h4 class="mt-4">1. Memulai Sistem Bell</h4>
                 <ul style="margin-left: 20px; margin-top: 5px;">
-                    <li>Buka aplikasi.</li>
-                    <li>Di menu Dashboard Utama, klik tombol biru besar <strong>"Mulai Sistem Bell"</strong>.</li>
-                    <li>Indikator akan berubah menjadi hijau ("Sistem Aktif & Memantau"). Biarkan tab browser ini tetap terbuka selama jam sekolah berlangsung.</li>
-                    <li><strong>Opsional:</strong> Anda bisa menekan tombol "Fullscreen" agar tampilan jam membesar memenuhi layar.</li>
+                    <li>Buka aplikasi, di menu Dashboard Utama, klik <strong>"Mulai Sistem Bell"</strong>.</li>
+                    <li>Biarkan tab browser ini tetap terbuka selama jam sekolah.</li>
                 </ul>
 
-                <h4 class="mt-4">2. Mengatur Jadwal</h4>
+                <h4 class="mt-4">2. Mengatur Jadwal (Import Excel)</h4>
                 <ul style="margin-left: 20px; margin-top: 5px;">
-                    <li>Buka menu <strong>Pengaturan Jadwal</strong>.</li>
-                    <li>Pilih hari (misal: Senin).</li>
-                    <li>Klik tombol biru <strong>"+ Tambah Jadwal"</strong>.</li>
-                    <li>Masukkan jam (contoh: 07:15), nama kegiatan, jenis bell, lalu simpan.</li>
-                    <li>Aplikasi akan otomatis berbunyi sesuai hari dan jam di komputer Anda.</li>
-                </ul>
-
-                <h4 class="mt-4">3. Mengganti Suara Bell dengan MP3 Sendiri</h4>
-                <ul style="margin-left: 20px; margin-top: 5px;">
-                    <li>Jika sekolah Anda memiliki file lagu atau suara rekaman sendiri (MP3/WAV), buka menu <strong>Library Suara</strong>.</li>
-                    <li>Pilih file di bagian "Upload Suara Kustom" dan klik <strong>Simpan Suara</strong>.</li>
-                    <li>Sekarang, saat Anda menambah/mengedit jadwal di menu Pengaturan Jadwal, suara MP3 Anda akan muncul di bagian pilihan "Sumber Suara".</li>
-                </ul>
-
-                <h4 class="mt-4">4. Tombol Darurat (Manual)</h4>
-                <ul style="margin-left: 20px; margin-top: 5px;">
-                    <li>Jika ada perubahan jadwal mendadak (misalnya istirahat dipercepat), Anda tidak perlu mengubah jadwal.</li>
-                    <li>Buka menu <strong>Manual Panel</strong> dan klik salah satu tombol bell raksasa yang tersedia. Suara akan langsung berbunyi.</li>
-                </ul>
-
-                <h4 class="mt-4">5. Memindahkan Data ke Komputer Lain</h4>
-                <ul style="margin-left: 20px; margin-top: 5px;">
-                    <li>Buka menu <strong>Pengaturan Sekolah</strong>.</li>
-                    <li>Klik <strong>"Export Data Jadwal"</strong>. Akan terdownload sebuah file <code>.json</code>.</li>
-                    <li>Di komputer baru, buka aplikasi yang sama, klik <strong>"Import"</strong> dan pilih file <code>.json</code> tersebut. Jadwal Anda akan otomatis kembali seperti semula!</li>
+                    <li>Buka menu <strong>Jadwal</strong>.</li>
+                    <li>Klik <strong>📥 Template Excel</strong>, edit filenya lalu simpan.</li>
+                    <li>Klik <strong>📂 Import Excel</strong> dan pilih file yang sudah diedit. Jadwal seminggu langsung terpasang otomatis.</li>
                 </ul>
             </div>
         </section>
@@ -749,31 +841,30 @@
 
     <!-- Ringing Alert Fullscreen -->
     <div id="ringing-alert">
-        <h1 style="font-size: 5rem;">🔔 BELL BERBUNYI!</h1>
-        <p id="ringing-activity" style="font-size: 2rem;">Masuk Sekolah</p>
+        <h1>🔔 BELL BERBUNYI!</h1>
+        <p id="ringing-activity">Masuk Sekolah</p>
         <p id="ringing-time">07:00</p>
-        <button class="btn btn-outline mt-4" style="color:white; border-color:white; font-size:1.5rem;" onclick="stopCurrentBell()">🛑 Stop Suara</button>
+        <button class="btn btn-outline mt-4" style="color:white; border-color:white; font-size:1.2rem; padding: 15px 30px;" onclick="stopCurrentBell()">🛑 Stop Suara</button>
     </div>
 
     <!-- Donation Popup -->
     <div id="donation-popup">
         <div class="donation-card pulse-anim">
             <h2>Terima Kasih!</h2>
-            <p>Aplikasi ini 100% gratis dan berjalan tanpa internet.</p>
-            <p>Jika aplikasi ini bermanfaat untuk sekolah Anda, mohon dukung pengembang agar dapat terus berkarya.</p>
+            <p style="font-size: 0.95rem;">Aplikasi ini 100% gratis dan berjalan tanpa internet.</p>
+            <p style="font-size: 0.95rem; margin-top: 10px;">Jika aplikasi ini bermanfaat untuk sekolah Anda, mohon dukung pengembang agar dapat terus berkarya.</p>
             <div class="bank-account">
                 Bank BRI<br>
                 <span id="rek-popup">009801023322533</span> <button class="copy-btn" onclick="copyRekening('rek-popup')">📋 Copy</button><br>
                 <span style="font-size: 1rem; font-weight: normal;">a.n. Supriyadi</span>
             </div>
             <div style="margin-bottom: 15px;">
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">Ada pertanyaan atau request fitur khusus?</p>
                 <a href="https://wa.me/6282371962881?text=Halo%20Mas%20Supriyadi,%20saya%20ingin%20bertanya%20seputar%20Aplikasi%20Bell%20Sekolah..." target="_blank" class="wa-btn">
-                    💬 Chat WhatsApp Pengembang
+                    💬 Chat WA Pengembang
                 </a>
             </div>
-            <p id="donation-countdown" style="font-size: 0.9rem; color: var(--text-muted);">Menutup otomatis dalam <span id="countdown-timer">10</span> detik...</p>
-            <button class="btn btn-outline mt-4" onclick="closeDonationPopup()">Tutup Sekarang</button>
+            <p id="donation-countdown" style="font-size: 0.85rem; color: var(--text-muted);">Menutup otomatis dalam <span id="countdown-timer">10</span> detik...</p>
+            <button class="btn btn-outline mt-4" style="width: 100%;" onclick="closeDonationPopup()">Tutup Sekarang</button>
         </div>
     </div>
 
@@ -813,24 +904,17 @@
             if(isDarkMode) document.body.classList.add('dark-mode');
             
             await initIndexedDB();
-            
-            // Check if media queries match for mobile handling
-            if(window.innerWidth <= 768) {
-                document.getElementById('mobile-menu-btn').style.display = 'block';
-            }
 
             renderSchedules();
             renderDashboard();
-            updateClockUI(); // immediate UI update
+            updateClockUI(); 
             
-            // Setup keyboard shortcuts
             document.addEventListener('keydown', (e) => {
                 if(e.code === 'Space' && document.getElementById('ringing-alert').style.display === 'flex') {
                     stopCurrentBell();
                 }
             });
 
-            // Donation Popup Logic
             document.getElementById('donation-popup').style.display = 'flex';
             let timeLeft = 10;
             const countdownEl = document.getElementById('countdown-timer');
@@ -848,17 +932,14 @@
             document.getElementById('donation-popup').style.display = 'none';
         }
 
-        // Fungsi Copy ke Clipboard
         function copyRekening(elementId) {
             const rekText = document.getElementById(elementId).innerText;
-            // Menggunakan execCommand agar tetap kompatibel di dalam iframe/preview browser
             const tempInput = document.createElement("input");
             tempInput.value = rekText;
             document.body.appendChild(tempInput);
             tempInput.select();
             document.execCommand("copy");
             document.body.removeChild(tempInput);
-            
             alert("Nomor rekening berhasil disalin: " + rekText);
         }
 
@@ -925,12 +1006,60 @@
 
             const id = 'custom_' + Date.now();
             await saveAudioToDB(id, file.name, file);
-            fileInput.value = ''; // clear
+            fileInput.value = ''; 
             alert('Suara berhasil disimpan!');
         }
 
+        async function refreshCustomAudioDropdown() {
+            const sel = document.getElementById('form-sound');
+            Array.from(sel.options).forEach(opt => {
+                if(opt.value.startsWith('custom_')) sel.remove(opt.index);
+            });
+
+            if(!db) return;
+            const tx = db.transaction('sounds', 'readonly');
+            const req = tx.objectStore('sounds').getAll();
+            req.onsuccess = () => {
+                req.result.forEach(audio => {
+                    const option = document.createElement('option');
+                    option.value = audio.id;
+                    option.text = "Kustom - " + audio.name;
+                    sel.appendChild(option);
+                });
+            };
+        }
+
+        async function renderCustomAudioTable() {
+            const tbody = document.getElementById('custom-audio-body');
+            tbody.innerHTML = '';
+            
+            if(!db) return;
+            const tx = db.transaction('sounds', 'readonly');
+            const req = tx.objectStore('sounds').getAll();
+            
+            req.onsuccess = () => {
+                if(req.result.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="2">Belum ada file suara kustom.</td></tr>`;
+                    return;
+                }
+                req.result.forEach(audio => {
+                    // Penyesuaian tata letak tombol pada tabel agar responsif di HP
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${audio.name}</td>
+                            <td>
+                                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                    <button class="btn btn-outline btn-sm" onclick="playAudio('${audio.id}')">▶ Play</button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteAudioFromDB('${audio.id}')">🗑️ Hapus</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            };
+        }
+
         // ================= AUDIO ENGINE (Synthesizer & Player) =================
-        // Because we don't use external MP3s for defaults, we synthesize beautiful bell tones!
         function initAudioContext() {
             if(!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -941,55 +1070,44 @@
         function playTone(frequency, startTime, duration) {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            
-            osc.type = 'sine'; // Sine wave for bell-like tone
+            osc.type = 'sine';
             osc.frequency.setValueAtTime(frequency, audioCtx.currentTime + startTime);
-            
-            // Envelope: quick attack, exponential decay
             gain.gain.setValueAtTime(0, audioCtx.currentTime + startTime);
             gain.gain.linearRampToValueAtTime(1, audioCtx.currentTime + startTime + 0.05);
             gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + startTime + duration);
-            
             osc.connect(gain);
             gain.connect(audioCtx.destination);
-            
             osc.start(audioCtx.currentTime + startTime);
             osc.stop(audioCtx.currentTime + startTime + duration);
         }
 
         function playDefaultSynth(type) {
             initAudioContext();
-            
-            // Note frequencies: C5=523.25, D5=587.33, E5=659.25, G5=783.99, C6=1046.50
             if(type === 'masuk') {
-                playTone(523.25, 0, 1.5); // C5
-                playTone(659.25, 0.4, 1.5); // E5
-                playTone(783.99, 0.8, 1.5); // G5
-                playTone(1046.50, 1.2, 2.5); // C6
+                playTone(523.25, 0, 1.5); 
+                playTone(659.25, 0.4, 1.5); 
+                playTone(783.99, 0.8, 1.5); 
+                playTone(1046.50, 1.2, 2.5); 
             } else if (type === 'istirahat') {
-                playTone(783.99, 0, 1.5); // G5
-                playTone(659.25, 0.5, 2.0); // E5
+                playTone(783.99, 0, 1.5); 
+                playTone(659.25, 0.5, 2.0); 
             } else if (type === 'pulang') {
-                // Westminster Quarters style (simplified)
-                playTone(659.25, 0, 1.5); // E5
-                playTone(523.25, 0.5, 1.5); // C5
-                playTone(587.33, 1.0, 1.5); // D5
-                playTone(392.00, 1.5, 2.5); // G4
-                
-                playTone(392.00, 3.0, 1.5); // G4
-                playTone(587.33, 3.5, 1.5); // D5
-                playTone(659.25, 4.0, 1.5); // E5
-                playTone(523.25, 4.5, 3.0); // C5
+                playTone(659.25, 0, 1.5); 
+                playTone(523.25, 0.5, 1.5); 
+                playTone(587.33, 1.0, 1.5); 
+                playTone(392.00, 1.5, 2.5); 
+                playTone(392.00, 3.0, 1.5); 
+                playTone(587.33, 3.5, 1.5); 
+                playTone(659.25, 4.0, 1.5); 
+                playTone(523.25, 4.5, 3.0); 
             } else {
-                playTone(880.00, 0, 1.0); // A5 alert
+                playTone(880.00, 0, 1.0);
             }
-
-            // Fallback object to clear if stopped
             currentAudioSource = { type: 'synth', stop: () => { if(audioCtx) audioCtx.suspend(); setTimeout(()=> audioCtx.resume(), 100); } };
         }
 
         async function playAudio(soundId) {
-            stopCurrentBell(); // stop any existing
+            stopCurrentBell(); 
             if(soundId.startsWith('default_')) {
                 const type = soundId.replace('default_', '');
                 playDefaultSynth(type);
@@ -1035,7 +1153,6 @@
             document.getElementById('btn-stop-bell').style.display = 'inline-flex';
             document.getElementById('main-clock-container').classList.add('is-ringing');
             
-            // Auto hide visual alert after 15 seconds (audio might continue)
             setTimeout(() => {
                 alertBox.style.display = 'none';
                 document.getElementById('main-clock-container').classList.remove('is-ringing');
@@ -1049,7 +1166,6 @@
             const statusText = document.getElementById('sys-status-text');
 
             if(isSystemActive) {
-                // Turn OFF
                 isSystemActive = false;
                 clearInterval(clockInterval);
                 btn.className = "btn btn-primary btn-lg";
@@ -1057,15 +1173,12 @@
                 statusBox.classList.remove('sys-active');
                 statusText.innerText = "Sistem Nonaktif";
             } else {
-                // Turn ON
                 isSystemActive = true;
                 clockInterval = setInterval(systemTick, 1000);
                 btn.className = "btn btn-outline btn-lg";
                 btn.innerHTML = "⏹ Matikan Sistem";
                 statusBox.classList.add('sys-active');
                 statusText.innerText = "Sistem Aktif & Memantau";
-                
-                // Initialize audio context on user interaction (browser policy)
                 initAudioContext();
             }
         }
@@ -1086,32 +1199,28 @@
             updateClockUI();
             
             const now = new Date();
-            const currentDay = now.getDay(); // 0(Sun) - 6(Sat)
+            const currentDay = now.getDay(); 
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const currentHM = `${h}:${m}`;
 
-            // Reset lastRungTime if minute changed
             if(lastRungTime && lastRungTime !== currentHM) {
                 lastRungTime = "";
             }
 
-            // Find schedule for today matching exactly this hour:minute
             const todaySchedules = schedules.filter(s => parseInt(s.day) === currentDay);
             const activeEvent = todaySchedules.find(s => s.time === currentHM);
 
             if(activeEvent && lastRungTime !== currentHM) {
                 triggerBell(activeEvent);
-                lastRungTime = currentHM; // flag to prevent ringing again in this same minute
+                lastRungTime = currentHM; 
             }
 
             updateNextScheduleUI(todaySchedules, currentHM);
         }
 
         function updateNextScheduleUI(todaySchedules, currentHM) {
-            // Sort schedules by time
             todaySchedules.sort((a,b) => a.time.localeCompare(b.time));
-            // Find first schedule that is greater than current time
             const nextEvent = todaySchedules.find(s => s.time > currentHM);
             
             if(nextEvent) {
@@ -1119,7 +1228,7 @@
                 document.getElementById('stat-next-name').innerText = nextEvent.name;
             } else {
                 document.getElementById('stat-next-bell').innerText = "--:--";
-                document.getElementById('stat-next-name').innerText = "Tidak ada lagi hari ini";
+                document.getElementById('stat-next-name').innerText = "Tidak ada";
             }
         }
 
@@ -1160,10 +1269,6 @@
             
             document.getElementById(`view-${viewId}`).classList.add('active');
             event.currentTarget.classList.add('active');
-
-            if(window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('mobile-open');
-            }
 
             if(viewId === 'dashboard') renderDashboard();
         }
@@ -1215,7 +1320,7 @@
                         <td>${s.name}</td>
                         <td><span class="${badgeClass}">${typeName}</span></td>
                         <td>${soundName}</td>
-                        <td>
+                        <td style="white-space: nowrap;">
                             <span class="action-icon" onclick="editSchedule(${s.id})">✏️</span>
                             <span class="action-icon delete" onclick="deleteSchedule(${s.id})">🗑️</span>
                         </td>
@@ -1265,7 +1370,7 @@
             localStorage.setItem('bell_schedules', JSON.stringify(schedules));
             closeScheduleModal();
             renderSchedules();
-            renderDashboard(); // refresh dashboard today view
+            renderDashboard();
         }
 
         function editSchedule(id) {
@@ -1296,7 +1401,6 @@
             document.getElementById('ui-school-name-sidebar').innerText = settings.schoolName;
             document.getElementById('ui-marquee-text').innerText = `${settings.marquee} | Tahun Ajaran ${settings.schoolYear}`;
             
-            // Populate form
             document.getElementById('set-school-name').value = settings.schoolName;
             document.getElementById('set-school-year').value = settings.schoolYear;
             document.getElementById('set-school-marquee').value = settings.marquee;
@@ -1346,58 +1450,10 @@
             reader.readAsText(fileInput.files[0]);
         }
 
-        async function refreshCustomAudioDropdown() {
-            const sel = document.getElementById('form-sound');
-            // Keep defaults, remove old customs
-            Array.from(sel.options).forEach(opt => {
-                if(opt.value.startsWith('custom_')) sel.remove(opt.index);
-            });
-
-            if(!db) return;
-            const tx = db.transaction('sounds', 'readonly');
-            const req = tx.objectStore('sounds').getAll();
-            req.onsuccess = () => {
-                req.result.forEach(audio => {
-                    const option = document.createElement('option');
-                    option.value = audio.id;
-                    option.text = "Kustom - " + audio.name;
-                    sel.appendChild(option);
-                });
-            };
-        }
-
-        async function renderCustomAudioTable() {
-            const tbody = document.getElementById('custom-audio-body');
-            tbody.innerHTML = '';
-            
-            if(!db) return;
-            const tx = db.transaction('sounds', 'readonly');
-            const req = tx.objectStore('sounds').getAll();
-            
-            req.onsuccess = () => {
-                if(req.result.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="2">Belum ada file suara kustom.</td></tr>`;
-                    return;
-                }
-                req.result.forEach(audio => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${audio.name}</td>
-                            <td>
-                                <button class="btn btn-outline" style="padding: 5px 10px; font-size:0.8rem" onclick="playAudio('${audio.id}')">▶ Play</button>
-                                <button class="btn btn-danger" style="padding: 5px 10px; font-size:0.8rem; margin-left: 5px;" onclick="deleteAudioFromDB('${audio.id}')">🗑️ Hapus</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            };
-        }
-
         // ================= EXCEL IMPORT & EXPORT =================
         function downloadExcelTemplate() {
             if(typeof XLSX === 'undefined') return alert('Koneksi internet diperlukan pertama kali untuk memuat library Excel.');
             
-            // Data contoh template
             const ws_data = [
                 ["Hari_Angka", "Jam", "Nama_Kegiatan", "Jenis_Bell", "Suara"],
                 [1, "07:00", "Masuk Sekolah (Senin)", "masuk", "default_masuk"],
@@ -1443,17 +1499,13 @@
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
                     
-                    // Convert ke format JSON array (raw:false menjaga format waktu seperti 07:00 tetap jadi string)
                     const jsonArr = XLSX.utils.sheet_to_json(worksheet, {raw: false});
                     
                     let importedCount = 0;
                     jsonArr.forEach(row => {
-                        // Skip baris panduan yang ada titik-titiknya
                         if(row.Hari_Angka === "...") return;
                         
-                        // Validasi ketersediaan data penting
                         if(row.Hari_Angka !== undefined && row.Jam && row.Nama_Kegiatan) {
-                            // Coba bersihkan format jam jika terdapat detik tambahan di Excel (e.g. 07:00:00 -> 07:00)
                             let timeStr = row.Jam.toString().trim();
                             if(timeStr.length > 5) timeStr = timeStr.substring(0, 5);
 
@@ -1466,9 +1518,7 @@
                                 sound: row.Suara || 'default_masuk'
                             };
                             
-                            // Tindakan opsional: timpa jadwal lama pada hari & jam yang sama (jika ada)
                             schedules = schedules.filter(s => !(s.day === newObj.day && s.time === newObj.time));
-                            
                             schedules.push(newObj);
                             importedCount++;
                         }
@@ -1486,7 +1536,7 @@
                     console.error(error);
                     alert("Gagal membaca file Excel. Pastikan file tidak rusak.");
                 }
-                event.target.value = ""; // Reset file input
+                event.target.value = ""; 
             };
             reader.readAsArrayBuffer(file);
         }
