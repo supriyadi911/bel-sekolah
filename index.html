@@ -531,6 +531,9 @@
                     <button class="btn btn-danger btn-lg" onclick="stopCurrentBell()" id="btn-stop-bell" style="display:none;">
                         ⏹ Stop Suara
                     </button>
+                    <button class="btn btn-outline" id="btn-exam-mode" onclick="toggleExamMode()">
+                        📄 Mode Ujian: OFF
+                    </button>
                     <button class="btn btn-outline" onclick="toggleFullScreen()">
                         ⛶ Fullscreen
                     </button>
@@ -604,6 +607,7 @@
                     <div class="day-tab" onclick="filterDay(5, this)">Jumat</div>
                     <div class="day-tab" onclick="filterDay(6, this)">Sabtu</div>
                     <div class="day-tab" onclick="filterDay(0, this)">Minggu / Khusus</div>
+                    <div class="day-tab" onclick="filterDay(7, this)">Jadwal Ujian</div>
                 </div>
 
                 <div class="table-responsive">
@@ -806,6 +810,7 @@
                     <option value="5">Jumat</option>
                     <option value="6">Sabtu</option>
                     <option value="0">Minggu / Khusus</option>
+                    <option value="7">Jadwal Ujian</option>
                 </select>
             </div>
             <div class="form-group">
@@ -880,6 +885,7 @@
         let lastRungTime = ""; // Prevent duplicate rings in the same minute
         let statsRungToday = 0;
         let isDarkMode = localStorage.getItem('bell_dark_mode') === 'true';
+        let isExamMode = localStorage.getItem('bell_exam_mode') === 'true';
         
         let db; // IndexedDB for audio files
         let currentAudioSource = null; // To hold currently playing audio object
@@ -908,6 +914,7 @@
             
             await initIndexedDB();
 
+            updateExamModeUI();
             renderSchedules();
             renderDashboard();
             updateClockUI(); 
@@ -933,6 +940,32 @@
 
         function closeDonationPopup() {
             document.getElementById('donation-popup').style.display = 'none';
+        }
+
+        function toggleExamMode() {
+            isExamMode = !isExamMode;
+            localStorage.setItem('bell_exam_mode', isExamMode);
+            updateExamModeUI();
+            renderDashboard();
+            if (isSystemActive) {
+                lastRungTime = ""; // Reset agar bisa bunyi jika waktunya pas
+                systemTick();
+            }
+        }
+
+        function updateExamModeUI() {
+            const btn = document.getElementById('btn-exam-mode');
+            if(btn) {
+                if(isExamMode) {
+                    btn.innerHTML = "📄 Mode Ujian: ON";
+                    btn.classList.add('btn-primary');
+                    btn.classList.remove('btn-outline');
+                } else {
+                    btn.innerHTML = "📄 Mode Ujian: OFF";
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-outline');
+                }
+            }
         }
 
         function copyRekening(elementId) {
@@ -1005,7 +1038,7 @@
             if(!fileInput.files.length) return alert('Pilih file audio terlebih dahulu!');
             
             const file = fileInput.files[0];
-            if(file.size > 5000000) return alert('Ukuran file maksimal 5MB untuk memastikan keringanan sistem!');
+            if(file.size > 50000000) return alert('Ukuran file maksimal 50MB untuk memastikan keringanan sistem!');
 
             const id = 'custom_' + Date.now();
             await saveAudioToDB(id, file.name, file);
@@ -1201,7 +1234,7 @@
             updateClockUI();
             
             const now = new Date();
-            const currentDay = now.getDay(); 
+            const currentDay = isExamMode ? 7 : now.getDay(); 
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
             const currentHM = `${h}:${m}`;
@@ -1236,7 +1269,7 @@
 
         function renderDashboard() {
             const now = new Date();
-            const currentDay = now.getDay();
+            const currentDay = isExamMode ? 7 : now.getDay();
             const todaySchedules = schedules.filter(s => parseInt(s.day) === currentDay);
             todaySchedules.sort((a,b) => a.time.localeCompare(b.time));
 
@@ -1475,7 +1508,9 @@
                 [5, "11:00", "Pulang Sekolah (Jumat Cepat)", "pulang", "default_pulang"],
                 [6, "07:00", "Masuk Sekolah (Sabtu)", "masuk", "default_masuk"],
                 [6, "09:00", "Istirahat 1", "istirahat", "default_istirahat"],
-                [6, "11:00", "Pulang Sekolah (Sabtu)", "pulang", "default_pulang"]
+                [6, "11:00", "Pulang Sekolah (Sabtu)", "pulang", "default_pulang"],
+                [7, "07:30", "Mulai Ujian (Contoh)", "khusus", "default_khusus"],
+                [7, "09:30", "Ujian Selesai", "pulang", "default_pulang"]
             ];
             const ws = XLSX.utils.aoa_to_sheet(ws_data);
             const wb = XLSX.utils.book_new();
