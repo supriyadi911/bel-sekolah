@@ -279,28 +279,12 @@
         .form-group { margin-bottom: 15px; width: 100%; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; color: var(--text-main); font-size: 0.95rem; }
         .form-control {
-            width: 100%; padding: 10px 12px;
+            width: 100%; padding: 8px 12px;
             border: 1px solid var(--border); border-radius: 6px;
             background-color: var(--bg-card); color: var(--text-main);
             transition: var(--transition);
         }
         .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1); }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(3px);
-            display: none; align-items: center; justify-content: center; z-index: 1000; /* Ditingkatkan agar tampil di atas menu bawah */
-            padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal { 
-            background: var(--bg-card); width: 100%; max-width: 500px; 
-            border-radius: var(--radius); padding: 24px; 
-            box-shadow: var(--shadow-lg); 
-            max-height: 90vh; overflow-y: auto; 
-        }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
 
         .day-filter { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
         .day-tab { padding: 8px 16px; border-radius: 20px; background: var(--bg-body); cursor: pointer; border: 1px solid var(--border); white-space: nowrap; font-size: 0.9rem;}
@@ -317,8 +301,8 @@
         #ringing-alert p { font-size: 2rem; margin-top: 10px; }
         @keyframes flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        .action-icon { cursor: pointer; padding: 5px; color: var(--text-muted); font-size: 1.1rem;}
-        .action-icon:hover { color: var(--primary); }
+        .action-icon { cursor: pointer; padding: 5px; color: var(--text-muted); font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; transition: background 0.2s;}
+        .action-icon:hover { color: var(--primary); background: var(--border); }
         .action-icon.delete:hover { color: var(--danger); }
         
         .flex-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -382,7 +366,6 @@
                 position: fixed;
                 bottom: 0;
                 left: 0;
-                /* Pastikan sidebar berada di atas konten tapi di bawah modal */
                 z-index: 100;
             }
             .brand {
@@ -418,43 +401,22 @@
             }
             .main-content {
                 order: 1;
-                height: 100vh; /* Dikembalikan ke 100vh agar flex bekerja normal */
+                height: 100vh;
             }
             .view-section {
                 padding: 15px;
-                /* Sangat penting: padding bawah ditambahkan agar area gulir melewati tinggi menu navigasi (70px + 30px jeda) */
                 padding-bottom: 100px; 
             }
-            .clock-time {
-                font-size: 3.5rem; 
-            }
-            .clock-date {
-                font-size: 1rem;
-            }
-            .control-panel .btn {
-                width: 100%; 
-            }
-            .grid-2, .grid-3 {
-                grid-template-columns: 1fr; 
-            }
-            .card {
-                padding: 18px;
-            }
-            #ringing-alert h1 {
-                font-size: 3rem; 
-            }
-            #ringing-alert p {
-                font-size: 1.5rem;
-            }
+            .clock-time { font-size: 3.5rem; }
+            .clock-date { font-size: 1rem; }
+            .control-panel .btn { width: 100%; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .card { padding: 18px; }
+            #ringing-alert h1 { font-size: 3rem; }
+            #ringing-alert p { font-size: 1.5rem; }
             
-            /* Responsive Khusus Library Suara & Settings */
-            .flex-responsive {
-                flex-direction: column; 
-                align-items: stretch;
-            }
-            #custom-audio-table th, #custom-audio-table td {
-                padding: 10px; 
-            }
+            .flex-responsive { flex-direction: column; align-items: stretch; }
+            #custom-audio-table th, #custom-audio-table td { padding: 10px; }
         }
     </style>
     <!-- Library untuk membaca dan menulis file Excel -->
@@ -591,11 +553,10 @@
             <div class="card">
                 <div class="flex-row" style="justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap;">
                     <h2>Manajemen Jadwal Bell</h2>
-                    <div class="flex-row" style="gap: 10px; flex-wrap: wrap; width: 100%;">
-                        <button class="btn btn-outline" style="flex:1;" onclick="downloadExcelTemplate()">📥 Template Excel</button>
-                        <button class="btn btn-success" style="flex:1;" onclick="document.getElementById('import-excel-file').click()">📂 Import Excel</button>
+                    <div class="flex-row" style="gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-outline" onclick="downloadExcelTemplate()">📥 Template Excel</button>
+                        <button class="btn btn-success" onclick="document.getElementById('import-excel-file').click()">📂 Import Excel</button>
                         <input type="file" id="import-excel-file" accept=".xlsx, .xls" style="display: none;" onchange="importExcel(event)">
-                        <button class="btn btn-primary" style="flex:1; min-width: 100%;" onclick="openScheduleModal()">+ Tambah Jadwal</button>
                     </div>
                 </div>
                 
@@ -608,6 +569,25 @@
                     <div class="day-tab" onclick="filterDay(6, this)">Sabtu</div>
                     <div class="day-tab" onclick="filterDay(0, this)">Minggu / Khusus</div>
                     <div class="day-tab" onclick="filterDay(7, this)">Jadwal Ujian</div>
+                </div>
+
+                <!-- Action Bar for Copy and Add -->
+                <div class="flex-row" style="justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; background: var(--bg-body); padding: 12px; border-radius: 8px;">
+                    <div class="flex-row" style="align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span style="font-size: 0.95rem; font-weight: 500;">Salin seluruh jadwal hari ini ke:</span>
+                        <select id="copy-target-day" class="form-control" style="width: auto; padding: 6px 12px; font-size: 0.95rem; margin-bottom: 0;">
+                            <option value="1">Senin</option>
+                            <option value="2">Selasa</option>
+                            <option value="3">Rabu</option>
+                            <option value="4">Kamis</option>
+                            <option value="5">Jumat</option>
+                            <option value="6">Sabtu</option>
+                            <option value="0">Minggu / Khusus</option>
+                            <option value="7">Jadwal Ujian</option>
+                        </select>
+                        <button class="btn btn-primary btn-sm" onclick="copyScheduleToDay()">📋 Salin</button>
+                    </div>
+                    <button class="btn btn-primary" onclick="enableAddRow()">+ Tambah Jadwal Baru</button>
                 </div>
 
                 <div class="table-responsive">
@@ -791,62 +771,6 @@
         </section>
     </main>
 
-    <!-- MODALS & ALERTS -->
-
-    <!-- Add/Edit Schedule Modal -->
-    <div class="modal-overlay" id="modal-schedule">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="modal-title">Tambah Jadwal Baru</h3>
-                <button class="close-modal" onclick="closeScheduleModal()">×</button>
-            </div>
-            <div class="form-group">
-                <label>Pilih Hari</label>
-                <select id="form-day" class="form-control">
-                    <option value="1">Senin</option>
-                    <option value="2">Selasa</option>
-                    <option value="3">Rabu</option>
-                    <option value="4">Kamis</option>
-                    <option value="5">Jumat</option>
-                    <option value="6">Sabtu</option>
-                    <option value="0">Minggu / Khusus</option>
-                    <option value="7">Jadwal Ujian</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Jam (Format 24 Jam, cth: 07:15)</label>
-                <input type="time" id="form-time" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label>Nama Kegiatan</label>
-                <input type="text" id="form-name" class="form-control" placeholder="Contoh: Jam Pelajaran 1" required>
-            </div>
-            <div class="form-group">
-                <label>Jenis Bell</label>
-                <select id="form-type" class="form-control">
-                    <option value="masuk">Masuk Sekolah / Pindah Jam</option>
-                    <option value="istirahat">Istirahat</option>
-                    <option value="pulang">Pulang Sekolah</option>
-                    <option value="khusus">Khusus / Peringatan</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Sumber Suara</label>
-                <select id="form-sound" class="form-control">
-                    <option value="default_masuk">Bawaan - Bell Masuk</option>
-                    <option value="default_istirahat">Bawaan - Bell Istirahat</option>
-                    <option value="default_pulang">Bawaan - Bell Pulang</option>
-                    <!-- Custom sounds will be populated here -->
-                </select>
-            </div>
-            <input type="hidden" id="form-id">
-            <div class="mt-4 flex-row" style="justify-content: flex-end;">
-                <button class="btn btn-outline" onclick="closeScheduleModal()">Batal</button>
-                <button class="btn btn-primary" onclick="saveSchedule()">Simpan Jadwal</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Ringing Alert Fullscreen -->
     <div id="ringing-alert">
         <h1>🔔 BELL BERBUNYI!</h1>
@@ -882,14 +806,18 @@
         let isSystemActive = false;
         let clockInterval = null;
         let currentActiveDayFilter = 1; // Default Monday
-        let lastRungTime = ""; // Prevent duplicate rings in the same minute
+        let lastRungTime = ""; 
         let statsRungToday = 0;
         let isDarkMode = localStorage.getItem('bell_dark_mode') === 'true';
         let isExamMode = localStorage.getItem('bell_exam_mode') === 'true';
         
+        let editingScheduleId = null; // Track mana yang sedang di-edit (Inline Edit)
+        let isAddingNewSchedule = false; // Track apakah sedang mode tambah baru
+
         let db; // IndexedDB for audio files
-        let currentAudioSource = null; // To hold currently playing audio object
-        let audioCtx = null; // Web Audio API Context
+        let currentAudioSource = null; 
+        let audioCtx = null; 
+        let customSoundsList = []; // Simpan array suara custom global untuk dropdown inline
 
         // Default Data if empty
         const defaultSchedules = [
@@ -948,7 +876,7 @@
             updateExamModeUI();
             renderDashboard();
             if (isSystemActive) {
-                lastRungTime = ""; // Reset agar bisa bunyi jika waktunya pas
+                lastRungTime = ""; 
                 systemTick();
             }
         }
@@ -1038,7 +966,9 @@
             if(!fileInput.files.length) return alert('Pilih file audio terlebih dahulu!');
             
             const file = fileInput.files[0];
-            if(file.size > 50000000) return alert('Ukuran file maksimal 50MB untuk memastikan keringanan sistem!');
+            // Update: Batas maksimal diperbesar dari 50MB menjadi 300MB
+            // 300 * 1024 * 1024 = 314572800 bytes
+            if(file.size > 314572800) return alert('Ukuran file maksimal 300MB untuk memastikan keringanan sistem!');
 
             const id = 'custom_' + Date.now();
             await saveAudioToDB(id, file.name, file);
@@ -1047,21 +977,15 @@
         }
 
         async function refreshCustomAudioDropdown() {
-            const sel = document.getElementById('form-sound');
-            Array.from(sel.options).forEach(opt => {
-                if(opt.value.startsWith('custom_')) sel.remove(opt.index);
-            });
-
             if(!db) return;
             const tx = db.transaction('sounds', 'readonly');
             const req = tx.objectStore('sounds').getAll();
             req.onsuccess = () => {
-                req.result.forEach(audio => {
-                    const option = document.createElement('option');
-                    option.value = audio.id;
-                    option.text = "Kustom - " + audio.name;
-                    sel.appendChild(option);
-                });
+                customSoundsList = req.result; // Update global array
+                // Jika sedang dalam mode edit/tambah, re-render form nya
+                if(editingScheduleId || isAddingNewSchedule) {
+                    renderSchedules();
+                }
             };
         }
 
@@ -1324,12 +1248,60 @@
             }
         }
 
-        // ================= SCHEDULE MANAGEMENT =================
+        // ================= SCHEDULE MANAGEMENT (INLINE EDIT & COPY) =================
+        
         function filterDay(dayCode, el) {
             document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
             el.classList.add('active');
             currentActiveDayFilter = dayCode;
+            editingScheduleId = null;
+            isAddingNewSchedule = false;
             renderSchedules();
+        }
+
+        // HTML Generator untuk form inline
+        function getTypeOptionsHTML(selected) {
+            return `
+                <option value="masuk" ${selected==='masuk'?'selected':''}>Masuk Sekolah</option>
+                <option value="istirahat" ${selected==='istirahat'?'selected':''}>Istirahat</option>
+                <option value="pulang" ${selected==='pulang'?'selected':''}>Pulang</option>
+                <option value="khusus" ${selected==='khusus'?'selected':''}>Khusus / Peringatan</option>
+            `;
+        }
+
+        function getSoundOptionsHTML(selected) {
+            let html = `
+                <option value="default_masuk" ${selected==='default_masuk'?'selected':''}>Bawaan - Masuk</option>
+                <option value="default_istirahat" ${selected==='default_istirahat'?'selected':''}>Bawaan - Istirahat</option>
+                <option value="default_pulang" ${selected==='default_pulang'?'selected':''}>Bawaan - Pulang</option>
+                <option value="default_khusus" ${selected==='default_khusus'?'selected':''}>Bawaan - Khusus</option>
+            `;
+            customSoundsList.forEach(snd => {
+                let val = snd.id;
+                html += `<option value="${val}" ${selected===val?'selected':''}>Kustom - ${snd.name}</option>`;
+            });
+            return html;
+        }
+
+        function generateInlineFormRow(s = null) {
+            const time = s ? s.time : '07:00';
+            const name = s ? s.name : '';
+            const type = s ? s.type : 'masuk';
+            const sound = s ? s.sound : 'default_masuk';
+            const idArg = s ? s.id : 'null';
+
+            return `
+                <tr style="background: var(--bg-body);">
+                    <td><input type="time" id="inline-time" value="${time}" class="form-control" style="min-width: 100px;"></td>
+                    <td><input type="text" id="inline-name" value="${name}" placeholder="Nama Kegiatan (Cth: Upacara)" class="form-control" style="min-width: 150px;"></td>
+                    <td><select id="inline-type" class="form-control" style="min-width: 120px;">${getTypeOptionsHTML(type)}</select></td>
+                    <td><select id="inline-sound" class="form-control" style="min-width: 150px;">${getSoundOptionsHTML(sound)}</select></td>
+                    <td style="white-space: nowrap;">
+                        <button class="btn btn-success btn-sm" onclick="saveInlineSchedule(${idArg})">✔️ Simpan</button>
+                        <button class="btn btn-outline btn-sm" onclick="cancelInlineEdit()">❌ Batal</button>
+                    </td>
+                </tr>
+            `;
         }
 
         function renderSchedules() {
@@ -1339,87 +1311,94 @@
             const filtered = schedules.filter(s => parseInt(s.day) === currentActiveDayFilter);
             filtered.sort((a,b) => a.time.localeCompare(b.time));
 
-            if(filtered.length === 0) {
+            if(filtered.length === 0 && !isAddingNewSchedule) {
                 tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Belum ada jadwal untuk hari ini</td></tr>`;
                 return;
             }
 
             filtered.forEach(s => {
-                let badgeClass = `badge badge-${s.type}`;
-                let typeName = s.type.charAt(0).toUpperCase() + s.type.slice(1);
-                let soundName = s.sound.replace('default_', 'Bawaan: ').replace('custom_', 'Kustom: ');
+                if (s.id === editingScheduleId) {
+                    // Render Row Mode Edit
+                    tbody.innerHTML += generateInlineFormRow(s);
+                } else {
+                    // Render Row Mode Baca (Normal)
+                    let badgeClass = `badge badge-${s.type}`;
+                    let typeName = s.type.charAt(0).toUpperCase() + s.type.slice(1);
+                    let soundName = s.sound.replace('default_', 'Bawaan: ').replace('custom_', 'Kustom: ');
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td style="font-weight:bold;">${s.time}</td>
-                        <td>${s.name}</td>
-                        <td><span class="${badgeClass}">${typeName}</span></td>
-                        <td>${soundName}</td>
-                        <td style="white-space: nowrap;">
-                            <span class="action-icon" onclick="editSchedule(${s.id})">✏️</span>
-                            <span class="action-icon delete" onclick="deleteSchedule(${s.id})">🗑️</span>
-                        </td>
-                    </tr>
-                `;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="font-weight:bold;">${s.time}</td>
+                            <td>${s.name}</td>
+                            <td><span class="${badgeClass}">${typeName}</span></td>
+                            <td>${soundName}</td>
+                            <td style="white-space: nowrap;">
+                                <span class="action-icon" title="Edit" onclick="startEditSchedule(${s.id})">✏️</span>
+                                <span class="action-icon delete" title="Hapus" onclick="deleteSchedule(${s.id})">🗑️</span>
+                            </td>
+                        </tr>
+                    `;
+                }
             });
+
+            // Render Row Mode Tambah Baru (Di baris paling bawah)
+            if (isAddingNewSchedule) {
+                tbody.innerHTML += generateInlineFormRow(null);
+            }
         }
 
-        function openScheduleModal() {
-            document.getElementById('form-id').value = '';
-            document.getElementById('form-day').value = currentActiveDayFilter;
-            document.getElementById('form-time').value = '07:00';
-            document.getElementById('form-name').value = '';
-            document.getElementById('form-type').value = 'masuk';
-            document.getElementById('form-sound').value = 'default_masuk';
-            document.getElementById('modal-title').innerText = 'Tambah Jadwal Baru';
-            document.getElementById('modal-schedule').classList.add('active');
+        function enableAddRow() {
+            isAddingNewSchedule = true;
+            editingScheduleId = null; // Tutup mode edit yang lain (agar tidak bentrok id-nya)
+            renderSchedules();
         }
 
-        function closeScheduleModal() {
-            document.getElementById('modal-schedule').classList.remove('active');
+        function startEditSchedule(id) {
+            editingScheduleId = id;
+            isAddingNewSchedule = false;
+            renderSchedules();
         }
 
-        function saveSchedule() {
-            const id = document.getElementById('form-id').value;
-            const day = document.getElementById('form-day').value;
-            const time = document.getElementById('form-time').value;
-            const name = document.getElementById('form-name').value;
-            const type = document.getElementById('form-type').value;
-            const sound = document.getElementById('form-sound').value;
+        function cancelInlineEdit() {
+            editingScheduleId = null;
+            isAddingNewSchedule = false;
+            renderSchedules();
+        }
 
-            if(!time || !name) return alert("Jam dan Nama Kegiatan harus diisi!");
+        function saveInlineSchedule(id = null) {
+            const time = document.getElementById('inline-time').value;
+            const name = document.getElementById('inline-name').value;
+            const type = document.getElementById('inline-type').value;
+            const sound = document.getElementById('inline-sound').value;
 
-            const newObj = {
-                id: id ? parseInt(id) : Date.now(),
-                day: parseInt(day),
-                time, name, type, sound
-            };
+            if(!time || !name) return alert("Jam dan Nama Kegiatan harus diisi lengkap!");
 
-            if(id) {
+            if (id) {
+                // Update Exsisting
                 const idx = schedules.findIndex(s => s.id == id);
-                if(idx > -1) schedules[idx] = newObj;
+                if(idx > -1) {
+                    schedules[idx].time = time;
+                    schedules[idx].name = name;
+                    schedules[idx].type = type;
+                    schedules[idx].sound = sound;
+                }
             } else {
-                schedules.push(newObj);
+                // Tambah Baru
+                schedules.push({
+                    id: Date.now(),
+                    day: currentActiveDayFilter,
+                    time, name, type, sound
+                });
             }
 
             localStorage.setItem('bell_schedules', JSON.stringify(schedules));
-            closeScheduleModal();
+            
+            // Tutup mode form
+            editingScheduleId = null;
+            isAddingNewSchedule = false;
+            
             renderSchedules();
             renderDashboard();
-        }
-
-        function editSchedule(id) {
-            const s = schedules.find(x => x.id === id);
-            if(!s) return;
-
-            document.getElementById('form-id').value = s.id;
-            document.getElementById('form-day').value = s.day;
-            document.getElementById('form-time').value = s.time;
-            document.getElementById('form-name').value = s.name;
-            document.getElementById('form-type').value = s.type;
-            document.getElementById('form-sound').value = s.sound;
-            document.getElementById('modal-title').innerText = 'Edit Jadwal';
-            document.getElementById('modal-schedule').classList.add('active');
         }
 
         function deleteSchedule(id) {
@@ -1430,6 +1409,38 @@
                 renderDashboard();
             }
         }
+
+        function copyScheduleToDay() {
+            const targetDay = parseInt(document.getElementById('copy-target-day').value);
+            if(targetDay === currentActiveDayFilter) return alert("Silakan pilih hari target yang berbeda dari hari yang sedang dilihat!");
+
+            const sourceSchedules = schedules.filter(s => parseInt(s.day) === currentActiveDayFilter);
+            if(sourceSchedules.length === 0) return alert("Tidak ada jadwal di hari ini yang bisa disalin.");
+
+            let hariTargetNama = document.getElementById('copy-target-day').options[document.getElementById('copy-target-day').selectedIndex].text;
+
+            if(confirm(`Yakin ingin menyalin ${sourceSchedules.length} jadwal ke hari ${hariTargetNama}? Ini akan MENGHAPUS/MENIMPA semua jadwal yang sudah ada di hari ${hariTargetNama}.`)) {
+                
+                // 1. Hapus jadwal lama di hari target
+                schedules = schedules.filter(s => parseInt(s.day) !== targetDay);
+                
+                // 2. Masukkan jadwal baru (salinan)
+                sourceSchedules.forEach((s, idx) => {
+                    schedules.push({
+                        id: Date.now() + idx, // Supaya ID unik dan berurutan
+                        day: targetDay,
+                        time: s.time,
+                        name: s.name,
+                        type: s.type,
+                        sound: s.sound
+                    });
+                });
+
+                localStorage.setItem('bell_schedules', JSON.stringify(schedules));
+                alert(`Berhasil! Jadwal telah disalin ke hari ${hariTargetNama}.`);
+            }
+        }
+
 
         // ================= SETTINGS & DATA =================
         function applySettings() {
